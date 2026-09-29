@@ -1,4 +1,3 @@
-const uuid = require('uuid/v4')
 
 class Repo {
   static findMany(ids) {
@@ -27,7 +26,7 @@ class Repo {
       throw new Error('The URL provided is not valid')
     }
 
-    this.id = id || uuid()
+    this.id = id || crypto.randomUUID()
     this.description = description
     this.name = name
     this.submitted_at = submitted_at || Number(new Date())
