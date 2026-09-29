@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { RepoList } from '../components/RepoList';
+import { Octokit } from '@octokit/rest';
+
+let repos = [];
+if (Astro.locals.runtime && Astro.locals.runtime.env) {
+    const { REPO_HUNT, GH_TOKEN } = Astro.locals.runtime.env;
+    const today = new Date().toLocaleDateString();
+
+    try {
+        let ids = await REPO_HUNT.get(today);
+        if (ids) {
+            const parsedIds = JSON.parse(ids);
+            const fetchedRepos = await Promise.all(parsedIds.map(async (id) => {
+                const data = await REPO_HUNT.get(`repos:${id}`);
+                return data ? JSON.parse(data) : null;
+            }));
+            repos = fetchedRepos.filter(Boolean);
+        }
+    } catch (e) {
+        console.error('Error fetching repos:', e);
+    }
+}
+---
+
+<Layout title="Repo Hunt">
+	<main class="container mx-auto p-8">
+		<h1 class="text-4xl font-bold mb-8">Repo Hunt</h1>
+		<p class="text-gray-600 mb-8 italic">Find cool open-source projects daily</p>
+
+        <a href="/post" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Post a repository</a>
+
+        <div class="mt-8">
+            <RepoList repos={repos} client:load />
+        </div>
+	</main>
+</Layout>

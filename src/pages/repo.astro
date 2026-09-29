@@ -1,0 +1,50 @@
+---
+import { Octokit } from '@octokit/rest';
+
+if (Astro.request.method === 'POST') {
+    const data = await Astro.request.formData();
+    const url = data.get('url');
+    const name = data.get('name');
+    const description = data.get('description');
+
+    try {
+        const urlObj = new URL(url);
+        const whitelist = ['github.com', 'gitlab.com'];
+
+        if (!whitelist.some(valid => valid === urlObj.host)) {
+            return new Response('The URL provided is not a repository', { status: 400 });
+        }
+    } catch (err) {
+        return new Response('The URL provided is not valid', { status: 400 });
+    }
+
+    // In worker environment
+    if (Astro.locals.runtime && Astro.locals.runtime.env) {
+        const { REPO_HUNT, GH_TOKEN } = Astro.locals.runtime.env;
+        // Optionally use octokit with GH_TOKEN here
+        if (GH_TOKEN) {
+             const octokit = new Octokit({ auth: GH_TOKEN });
+        }
+
+        const id = crypto.randomUUID();
+        const repo = {
+            id,
+            name,
+            description,
+            url,
+            submitted_at: Date.now()
+        };
+
+        await REPO_HUNT.put(`repos:${id}`, JSON.stringify(repo));
+
+        const today = new Date().toLocaleDateString();
+        let ids = await REPO_HUNT.get(today);
+        ids = ids ? JSON.parse(ids) : [];
+        ids.push(id);
+        await REPO_HUNT.put(today, JSON.stringify(ids));
+    }
+
+    return Astro.redirect('/');
+}
+return Astro.redirect('/');
+---

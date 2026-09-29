@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "repo-hunt",
+  "main": "dist/_worker.js/index.js",
+  "compatibility_date": "2024-01-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "REPO_HUNT",
+      "id": "e814d0855c0c4e27972da9453b444433"
+    }
+  ],
+  "build": {
+    "command": "npm run build"
+  },
+  "assets": {
+    "directory": "dist"
+  }
+}
