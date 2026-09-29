@@ -1,5 +1,5 @@
 const layout = require('./layout')
-const uuid = require('uuid/v3')
+const uuid = require('uuid').v3
 
 const dateFormat = submitted_at =>
   new Date(submitted_at).toLocaleDateString('en-us')
